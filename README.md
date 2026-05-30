@@ -7,7 +7,8 @@
 ## Run
 
 ```bash
-uvicorn app.main:app --reload
+uv sync
+uv run uvicorn app.main:app --reload
 ```
 
 브라우저에서 API 문서를 확인하려면 서버 실행 후 아래 주소로 접속합니다.
@@ -34,7 +35,7 @@ ai-record/
 AGENT.md
 CORE.md
 README.md
-requirements.txt
+pyproject.toml
 ```
 
 ## Folder and File Guide
@@ -46,7 +47,7 @@ requirements.txt
 - `ai-record/`: 중요한 코드 수정 및 설계 변경 로그를 날짜별로 기록하는 폴더입니다.
 - `AGENT.md`: 프로젝트 전용 AI 개발 가이드라인입니다.
 - `CORE.md`: 프로젝트의 중심 설계, 모델링 방향, 핵심 의사결정을 정리하는 문서입니다.
-- `requirements.txt`: Python 패키지 의존성 목록입니다.
+- `pyproject.toml`: uv 기반 Python 프로젝트 설정과 직접 의존성 목록입니다.
 
 ## TODO
 

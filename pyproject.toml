@@ -1,0 +1,13 @@
+[project]
+name = "da-eum"
+version = "0.1.0"
+description = "Senior culture and sports voucher blind-spot prediction API prototype."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.136.3",
+    "uvicorn==0.48.0",
+]
+
+[tool.uv]
+package = false
