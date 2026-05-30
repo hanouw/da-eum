@@ -1,0 +1,16 @@
+ai-record/
+ai-record
+
+__pycache__/
+*.py[cod]
+*.pyo
+
+.env
+.venv/
+venv/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+*.log
