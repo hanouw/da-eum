@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 
 from app.api.v1.router import api_router
 
@@ -16,9 +17,10 @@ def create_app() -> FastAPI:
 
     app.include_router(api_router, prefix=API_V1_PREFIX)
 
-    @app.get("/", tags=["root"])
-    async def root() -> dict[str, str]:
-        return {"message": f"Welcome to {APP_NAME}", "version": APP_VERSION}
+    @app.get("/", response_class=HTMLResponse, tags=["root"])
+    async def root() -> HTMLResponse:
+        with open("app/templates/index.html", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
 
     @app.get("/health", tags=["health"])
     async def health_check() -> dict[str, str]:

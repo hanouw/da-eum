@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>da-eum (다음) - 시니어 바우처 예측 및 예산 최적화 AI API</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="시니어 문화/체육 바우처 사각지대 예측 및 예산 최적 배분을 위한 고성능 AI API 솔루션. 지자체 행정 의사결정을 돕는 B2G AI 대시보드">
+    <meta name="keywords" content="시니어 복지, 문화바우처, 스포츠바우처, 사각지대 예측, 예산 최적화, B2G, AI API, FastAPI">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="da-eum (다음) - 시니어 바우처 예측 및 예산 최적화 AI API">
+    <meta property="og:description" content="시니어 문화/체육 바우처 사각지대 예측 및 예산 최적 배분을 위한 고성능 AI API 솔루션. 지자체 행정 의사결정을 돕는 B2G AI 대시보드">
+    <meta property="og:site_name" content="da-eum">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        darkBg: '#0b0f19',
+                        panelBg: 'rgba(17, 24, 39, 0.7)',
+                        brandPurple: '#8b5cf6',
+                        brandBlue: '#3b82f6',
+                        brandCyan: '#06b6d4',
+                        brandEmerald: '#10b981',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS for Premium Effects -->
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* Glassmorphism Panel */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.55);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-panel-hover {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-panel-hover:hover {
+            transform: translateY(-4px);
+            border-color: rgba(139, 92, 246, 0.25);
+            box-shadow: 0 12px 40px 0 rgba(139, 92, 246, 0.15);
+            background: rgba(17, 24, 39, 0.7);
+        }
+
+        /* Text Gradient */
+        .text-neon-gradient {
+            background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 50%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Animated Grid Overlay */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(1deg); }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Micro Pulse Animation */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .pulse-glow-dot {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="relative min-h-screen overflow-x-hidden font-sans antialiased">
+    
+    <!-- Background Grid -->
+    <div class="absolute inset-0 z-0 pointer-events-none bg-grid"></div>
+    
+    <!-- Header -->
+    <header class="sticky top-0 z-50 w-full border-b border-white/5 bg-darkBg/60 backdrop-blur-md">
+        <div class="container mx-auto flex items-center justify-between px-6 py-4">
+            <a href="/" class="flex items-center gap-3">
+                <!-- Premium Logo SVG -->
+                <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-brandPurple to-brandBlue p-[1.5px]">
+                    <div class="flex items-center justify-center w-full h-full rounded-[10px] bg-darkBg">
+                        <svg class="w-6 h-6 text-brandPurple" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 4L4 9L12 14L20 9L12 4Z" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 14L12 19L20 14" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs>
+                                <linearGradient id="logo-grad" x1="4" y1="4" x2="20" y2="19" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#a78bfa"/>
+                                    <stop offset="1" stop-color="#06b6d4"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+                <span class="font-outfit text-2xl font-bold tracking-tight text-white">da-eum <span class="text-xs font-semibold text-brandCyan bg-brandCyan/10 px-2 py-0.5 rounded-full border border-brandCyan/20 uppercase tracking-widest ml-1">API</span></span>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+                <a href="#features" class="hover:text-white transition-colors">주요 기능</a>
+                <a href="#dashboard" class="hover:text-white transition-colors">실시간 모니터링</a>
+                <a href="#playground" class="hover:text-white transition-colors">API 테스트</a>
+                <a href="/docs" target="_blank" class="flex items-center gap-1.5 hover:text-white transition-colors">
+                    Swagger 문서
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                </a>
+            </nav>
+            
+            <div class="flex items-center gap-4">
+                <a href="/docs" target="_blank" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium text-white rounded-lg group bg-gradient-to-br from-brandPurple to-brandCyan group-hover:from-brandPurple group-hover:to-brandCyan hover:text-white focus:ring-4 focus:outline-none focus:ring-brandPurple/30">
+                    <span class="relative px-4 py-2 transition-all ease-in duration-75 bg-darkBg rounded-md group-hover:bg-opacity-0 font-medium">
+                        API Docs 바로가기
+                    </span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative z-10 container mx-auto px-6 pt-12 pb-24 lg:pt-20 flex flex-col lg:flex-row items-center gap-16">
+        <div class="flex-1 text-center lg:text-left">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brandPurple/10 border border-brandPurple/20 text-xs font-semibold text-brandPurple tracking-wide mb-6">
+                <span class="flex h-2 w-2 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brandPurple opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-brandPurple"></span>
+                </span>
+                시니어 문화·체육 바우처 사각지대 해소 AI 솔루션
+            </div>
+            
+            <h1 class="font-outfit text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white mb-6">
+                지방자치단체를 위한<br>
+                <span class="text-neon-gradient text-glow">바우처 사각지대 예측</span> 및<br>
+                예산 최적 할당 AI
+            </h1>
+            
+            <p class="text-lg text-gray-400 max-w-xl mx-auto lg:mx-0 leading-relaxed mb-8">
+                시니어층의 문화예술 및 체육 활동 지원 바우처의 사용 저조 원인을 지역 단위로 분석하고, 지자체가 한정된 이동형 프로그램 예산을 가장 필요한 곳에 우선 투입할 수 있도록 행정 의사결정을 지원합니다.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+                <a href="#playground" class="px-6 py-3.5 rounded-xl bg-brandPurple hover:bg-brandPurple/90 text-white font-medium text-center shadow-lg shadow-brandPurple/25 transition-all hover:scale-[1.02]">
+                    API Playground 테스트
+                </a>
+                <a href="/docs" target="_blank" class="px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-center transition-all hover:scale-[1.02] flex items-center justify-center gap-2">
+                    Swagger API 문서
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Animated Dashboard Artwork -->
+        <div class="flex-1 w-full max-w-md lg:max-w-none float-animation">
+            <div class="relative p-[1px] rounded-3xl bg-gradient-to-tr from-brandPurple/40 via-white/5 to-brandCyan/40 shadow-2xl">
+                <div class="rounded-[23px] bg-darkBg/90 p-6 glass-panel">
+                    <!-- Dashboard Window Bar -->
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4 mb-6">
+                        <div class="flex gap-2">
+                            <span class="w-3.5 h-3.5 rounded-full bg-red-500/80"></span>
+                            <span class="w-3.5 h-3.5 rounded-full bg-yellow-500/80"></span>
+                            <span class="w-3.5 h-3.5 rounded-full bg-green-500/80"></span>
+                        </div>
+                        <span class="text-xs font-mono text-gray-500 uppercase tracking-widest">Welfare-Decision-Board.dmg</span>
+                        <div class="w-8"></div>
+                    </div>
+                    
+                    <!-- SVG Interactive Nodes Illustration -->
+                    <div class="relative w-full aspect-[4/3] bg-gray-950/50 rounded-2xl border border-white/5 overflow-hidden flex items-center justify-center">
+                        <svg class="w-full h-full p-4" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Graph Grid lines -->
+                            <line x1="40" y1="50" x2="360" y2="50" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                            <line x1="40" y1="110" x2="360" y2="110" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                            <line x1="40" y1="170" x2="360" y2="170" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                            <line x1="40" y1="230" x2="360" y2="230" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                            
+                            <!-- Connecting Network Path -->
+                            <path d="M60 210 L120 180 L180 230 L240 100 L300 130 L340 70" stroke="url(#chart-glow-grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M60 210 L120 180 L180 230 L240 100 L300 130 L340 70 L340 250 L60 250 Z" fill="url(#chart-area-grad)" opacity="0.1" />
+                            
+                            <!-- Node Dots & Pulsing Effects -->
+                            <g>
+                                <circle cx="240" cy="100" r="10" fill="#8b5cf6" fill-opacity="0.3" class="pulse-glow-dot"/>
+                                <circle cx="240" cy="100" r="4" fill="#8b5cf6"/>
+                            </g>
+                            <g>
+                                <circle cx="340" cy="70" r="10" fill="#06b6d4" fill-opacity="0.3" class="pulse-glow-dot"/>
+                                <circle cx="340" cy="70" r="4" fill="#06b6d4"/>
+                            </g>
+                            <g>
+                                <circle cx="120" cy="180" r="4" fill="#3b82f6"/>
+                            </g>
+                            <g>
+                                <circle cx="180" cy="230" r="4" fill="#10b981"/>
+                            </g>
+                            
+                            <!-- Gradients -->
+                            <defs>
+                                <linearGradient id="chart-glow-grad" x1="60" y1="210" x2="340" y2="70" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#3b82f6"/>
+                                    <stop offset="0.5" stop-color="#8b5cf6"/>
+                                    <stop offset="1" stop-color="#06b6d4"/>
+                                </linearGradient>
+                                <linearGradient id="chart-area-grad" x1="200" y1="70" x2="200" y2="250" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#8b5cf6" stop-opacity="1"/>
+                                    <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Simulated Dashboard Text -->
+                            <text x="50" y="40" fill="rgba(255,255,255,0.4)" font-size="10" font-family="monospace">PREDICTIVE RATIO (RISK)</text>
+                            <text x="320" y="270" fill="rgba(255,255,255,0.3)" font-size="9" font-family="monospace">MONTHS</text>
+                            
+                            <!-- Floating Data Card -->
+                            <rect x="255" y="110" width="80" height="40" rx="6" fill="#111827" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                            <text x="263" y="123" fill="white" font-size="9" font-weight="bold" font-family="sans-serif">경기 포천시</text>
+                            <text x="263" y="137" fill="#ef4444" font-size="9" font-weight="semibold" font-family="sans-serif">위험도: 84.7%</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section id="features" class="relative z-10 container mx-auto px-6 py-24 border-t border-white/5">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <h2 class="font-outfit text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
+                시니어 혜택 보장 극대화를 위한 AI 핵심 역량
+            </h2>
+            <p class="text-gray-400">
+                da-eum 솔루션은 공공 빅데이터와 공간 분석, AI 머신러닝 엔진을 융합하여 과학적이고 효과적인 복지 행정 모델을 제시합니다.
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="glass-panel glass-panel-hover p-8 rounded-2xl flex flex-col items-start">
+                <div class="w-12 h-12 rounded-xl bg-brandPurple/10 border border-brandPurple/20 flex items-center justify-center text-brandPurple mb-6">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">사각지대 지수 산출 및 예측</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    지역별 노인 인구 밀도, 문화/체육 시설 접근성, 과거 바우처 사용 이력을 종합적으로 분석하여 사각지대 지수(0~100점) 및 고위험 심각 등급을 고해상도로 분류하고 예측합니다.
+                </p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="glass-panel glass-panel-hover p-8 rounded-2xl flex flex-col items-start">
+                <div class="w-12 h-12 rounded-xl bg-brandBlue/10 border border-brandBlue/20 flex items-center justify-center text-brandBlue mb-6">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">예산 최적 배분 알고리즘</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    한정된 지자체 예산을 활용해 최대 수혜를 볼 수 있도록 다목적 수학적 최적화(Mathematical Optimization) 모델을 설계하여 이동형 스포츠버스 및 문화 예술 배차 경로를 추천합니다.
+                </p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="glass-panel glass-panel-hover p-8 rounded-2xl flex flex-col items-start">
+                <div class="w-12 h-12 rounded-xl bg-brandCyan/10 border border-brandCyan/20 flex items-center justify-center text-brandCyan mb-6">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">XAI 행정 타당성 지원</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    단순한 결과값 출력을 넘어 지자체 실무자가 왜 이 지역에 예산이 우선 배정되었는지 상관요인을 명확하게 인지하고 증명할 수 있는 설명 가능한 AI 지표(XAI)를 함께 도출합니다.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real-time Status Dashboard Section -->
+    <section id="dashboard" class="relative z-10 container mx-auto px-6 py-24 border-t border-white/5 bg-darkBg/30">
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+            <div class="flex-1 w-full">
+                <!-- Status Dashboard Panel -->
+                <div class="glass-panel rounded-3xl p-6 md:p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <span class="text-xs font-mono uppercase tracking-widest text-gray-500">API Health Status</span>
+                            <h3 class="text-2xl font-bold text-white mt-1">시스템 실시간 헬스 체크</h3>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brandEmerald/10 border border-brandEmerald/20 text-xs text-brandEmerald font-semibold">
+                            <span class="w-2.5 h-2.5 rounded-full bg-brandEmerald pulse-glow-dot"></span>
+                            ACTIVE
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gray-950/40 p-4 rounded-xl border border-white/5">
+                            <span class="text-xs text-gray-500 block mb-1">API 가동률</span>
+                            <span class="font-outfit text-2xl font-bold text-white">99.99%</span>
+                        </div>
+                        <div class="bg-gray-950/40 p-4 rounded-xl border border-white/5">
+                            <span class="text-xs text-gray-500 block mb-1">평균 지연율</span>
+                            <span class="font-outfit text-2xl font-bold text-brandCyan">42ms</span>
+                        </div>
+                        <div class="bg-gray-950/40 p-4 rounded-xl border border-white/5">
+                            <span class="text-xs text-gray-500 block mb-1">예산 배분 효율</span>
+                            <span class="font-outfit text-2xl font-bold text-brandPurple">+14.2%</span>
+                        </div>
+                        <div class="bg-gray-950/40 p-4 rounded-xl border border-white/5">
+                            <span class="text-xs text-gray-500 block mb-1">예측 모델 버전</span>
+                            <span class="font-outfit text-2xl font-bold text-white">v0.1.0-alpha</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Simulated Live Logs Console -->
+                    <div class="bg-gray-950 rounded-2xl p-4 font-mono text-xs text-gray-400 border border-white/5 relative">
+                        <div class="flex items-center justify-between text-gray-500 mb-2 border-b border-white/5 pb-2">
+                            <span>CONSOLE LOGS</span>
+                            <span class="text-brandCyan font-semibold">LIVE</span>
+                        </div>
+                        <div class="space-y-1.5 overflow-y-auto max-h-[140px]">
+                            <div class="flex gap-4"><span class="text-gray-600">[10:04:12]</span> <span class="text-green-400">INFO:</span> <span>Started server process [18920]</span></div>
+                            <div class="flex gap-4"><span class="text-gray-600">[10:04:13]</span> <span class="text-green-400">INFO:</span> <span>Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)</span></div>
+                            <div class="flex gap-4"><span class="text-gray-600">[10:04:14]</span> <span class="text-green-400">INFO:</span> <span>Initializing AI weights model... success</span></div>
+                            <div class="flex gap-4"><span class="text-gray-600">[10:20:07]</span> <span class="text-brandPurple">GET:</span> <span class="text-white">/health - 200 OK (0.24ms)</span></div>
+                            <div class="flex gap-4"><span class="text-gray-600">[11:05:04]</span> <span class="text-brandPurple">GET:</span> <span class="text-white">/ - 200 OK (0.18ms)</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex-1">
+                <span class="text-xs font-mono uppercase tracking-widest text-brandPurple font-semibold block mb-4">Enterprise-grade Infrastructure</span>
+                <h2 class="font-outfit text-3xl sm:text-4xl font-bold tracking-tight text-white mb-6">
+                    강력한 B2G 행정 인프라 지원
+                </h2>
+                <p class="text-gray-400 leading-relaxed mb-6">
+                    FastAPI로 빌드된 고성능 비동기 아키텍처는 수만 개의 격자 단위 공공 데이터 전처리 연산을 부하 없이 즉각적으로 수행할 수 있도록 최적화되어 있습니다. 
+                </p>
+                
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3 text-sm text-gray-300">
+                        <svg class="w-5 h-5 text-brandCyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <span>OAuth2 인증 인프라 탑재를 통한 안전한 행정 데이터 암호화 전송</span>
+                    </li>
+                    <li class="flex items-start gap-3 text-sm text-gray-300">
+                        <svg class="w-5 h-5 text-brandCyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <span>OpenAPI 3.0 사양 자동 생성을 통한 신속한 정부 시스템 연계</span>
+                    </li>
+                    <li class="flex items-start gap-3 text-sm text-gray-300">
+                        <svg class="w-5 h-5 text-brandCyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        <span>Tailscale 사설망 연결 지원으로 외부 해킹 차단 및 폐쇄망 가동</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive API Playground -->
+    <section id="playground" class="relative z-10 container mx-auto px-6 py-24 border-t border-white/5">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <h2 class="font-outfit text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
+                실시간 API 플레이그라운드
+            </h2>
+            <p class="text-gray-400">
+                원격 서버의 API를 브라우저에서 즉시 호출해 보고 반환값을 실시간으로 직접 검증해 보세요.
+            </p>
+        </div>
+        
+        <div class="max-w-3xl mx-auto">
+            <div class="glass-panel rounded-3xl p-6 md:p-8">
+                <div class="flex flex-col sm:flex-row items-center gap-4 justify-between mb-8 pb-6 border-b border-white/5">
+                    <div class="flex items-center gap-3">
+                        <span class="px-2.5 py-1 text-xs font-bold font-mono bg-green-500/10 text-green-400 border border-green-500/20 rounded-md">GET</span>
+                        <span class="font-mono text-sm text-white select-all">/health</span>
+                    </div>
+                    
+                    <button id="btn-call-api" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-brandPurple hover:bg-brandPurple/90 text-white font-medium text-sm transition-all flex items-center justify-center gap-2">
+                        <span id="btn-text">API 호출하기</span>
+                        <!-- Spinner (hidden by default) -->
+                        <svg id="btn-spinner" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Code Response Block -->
+                <div class="relative rounded-2xl bg-gray-950 border border-white/5 overflow-hidden">
+                    <div class="flex items-center justify-between px-4 py-2 border-b border-white/5 bg-white/5 text-xs text-gray-500 font-mono">
+                        <span>RESPONSE BODY</span>
+                        <span id="response-status" class="text-gray-500">READY</span>
+                    </div>
+                    <pre class="p-6 overflow-x-auto text-sm font-mono text-gray-300 min-h-[120px] max-h-[300px] flex items-center justify-start"><code id="code-response" class="w-full text-left text-gray-500">// 'API 호출하기' 버튼을 누르면 이 자리에 반환된 JSON 데이터가 출력됩니다.</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative z-10 w-full border-t border-white/5 py-12 bg-gray-950/30 text-center text-sm text-gray-500">
+        <div class="container mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <span class="font-outfit font-semibold text-white">da-eum AI System</span>
+            <span>© 2026 da-eum Project. All rights reserved.</span>
+            <div class="flex gap-6">
+                <a href="/docs" target="_blank" class="hover:text-white transition-colors">API Docs</a>
+                <a href="/redoc" target="_blank" class="hover:text-white transition-colors">ReDoc</a>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Script for Interactive Playground -->
+    <script>
+        const btnCallApi = document.getElementById('btn-call-api');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+        const responseStatus = document.getElementById('response-status');
+        const codeResponse = document.getElementById('code-response');
+
+        btnCallApi.addEventListener('click', async () => {
+            // UI Loading state
+            btnText.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
+            btnCallApi.disabled = true;
+            
+            responseStatus.innerText = 'FETCHING...';
+            responseStatus.className = 'text-brandCyan font-semibold';
+            codeResponse.className = 'w-full text-left text-gray-500';
+
+            try {
+                // Fetch `/health` relative path
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                // Success state
+                responseStatus.innerText = `STATUS: ${response.status} ${response.statusText}`;
+                responseStatus.className = 'text-brandEmerald font-semibold';
+                
+                codeResponse.innerText = JSON.stringify(data, null, 4);
+                codeResponse.className = 'w-full text-left text-brandCyan';
+            } catch (error) {
+                // Error state
+                responseStatus.innerText = 'STATUS: FAILED';
+                responseStatus.className = 'text-red-500 font-semibold';
+                
+                codeResponse.innerText = JSON.stringify({ error: "API 호출 실패", message: error.message }, null, 4);
+                codeResponse.className = 'w-full text-left text-red-400';
+            } finally {
+                // Restore UI State
+                btnText.classList.remove('hidden');
+                btnSpinner.classList.add('hidden');
+                btnCallApi.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
