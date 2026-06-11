@@ -29,7 +29,8 @@ jobs:
           script: |
             set -e
             cd /home/ubuntu/da-eum
-            git pull --ff-only
+            git fetch origin
+            git reset --hard origin/main
             docker compose --env-file .env.server -f docker-compose.server.yml up -d --build api
             docker compose --env-file .env.server -f docker-compose.server.yml ps
             curl -fsS https://daeum.hanouw.com
