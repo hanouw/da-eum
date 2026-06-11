@@ -1,5 +1,6 @@
 # 1. 빌드 스테이지
-FROM ghcr.io/astral-sh/uv:python3.12-slim AS builder
+FROM python:3.12-slim AS builder
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 WORKDIR /app
 
