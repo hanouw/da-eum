@@ -1,0 +1,35 @@
+name: Deploy daeum server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1단계: GitHub Actions 러너를 Tailscale 네트워크에 연결
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_CLIENT_SECRET }}
+          tags: tag:ci # 필요 시 Tailscale ACL에 설정한 태그 지정 (선택사항)
+
+      # 2단계: Tailscale 사설망을 통해 서버에 SSH 접속 후 배포 명령 실행
+      - name: Deploy over SSH (via Tailscale)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            set -e
+            cd /home/ubuntu/da-eum
+            git pull --ff-only
+            docker compose --env-file .env.server -f docker-compose.server.yml up -d --build api
+            docker compose --env-file .env.server -f docker-compose.server.yml ps
+            curl -fsS https://daeum.hanouw.com
