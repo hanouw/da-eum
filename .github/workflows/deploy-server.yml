@@ -35,4 +35,4 @@ jobs:
             docker compose --env-file .env.server -f docker-compose.server.yml ps
             sleep 3
             curl -fsS http://localhost:8000/health
-            curl -fsS https://daeum.hanouw.com/health
+            curl -fsS https://daeum.hanouw.com

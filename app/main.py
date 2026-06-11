@@ -16,6 +16,10 @@ def create_app() -> FastAPI:
 
     app.include_router(api_router, prefix=API_V1_PREFIX)
 
+    @app.get("/", tags=["root"])
+    async def root() -> dict[str, str]:
+        return {"message": f"Welcome to {APP_NAME}", "version": APP_VERSION}
+
     @app.get("/health", tags=["health"])
     async def health_check() -> dict[str, str]:
         return {"status": "ok", "service": APP_NAME}
