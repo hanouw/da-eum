@@ -14,8 +14,8 @@ jobs:
       - name: Connect to Tailscale
         uses: tailscale/github-action@v3
         with:
-          oauth-client-id: ${{ secrets.TAILSCALE_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TAILSCALE_CLIENT_SECRET }}
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci # 필요 시 Tailscale ACL에 설정한 태그 지정 (선택사항)
 
       # 2단계: Tailscale 사설망을 통해 서버에 SSH 접속 후 배포 명령 실행
